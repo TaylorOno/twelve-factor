@@ -39,9 +39,9 @@ Store config in ~~the~~ **a centralized** environment **bound solution**
 
 An app’s config is everything that is likely to vary between deploys (staging, production, developer environments, etc). This includes:
 
-    Resource handles to the database, Memcached, and other backing services
-    Credentials to external services such as Amazon S3 or Twitter
-    Per-deploy values such as the canonical hostname for the deploy
+- Resource handles to the database, Memcached, and other backing services
+- Credentials to external services such as Amazon S3 or Twitter
+- Per-deploy values such as the canonical hostname for the deploy
 
 Apps sometimes store config as constants in the code. This is a violation of twelve-factor, which requires strict separation of config from code. Config varies substantially across deploys, code does not.
 
@@ -152,44 +152,46 @@ For a worker process, graceful shutdown is achieved by returning the current job
 
 Processes should also be robust against sudden death, in the case of a failure in the underlying hardware. While this is a much less common occurrence than a graceful shutdown with SIGTERM, it can still happen. A recommended approach is use of a robust queueing backend, such as Beanstalkd, that returns jobs to the queue when clients disconnect or time out. Either way, a twelve-factor app is architected to handle unexpected, non-graceful terminations. Crash-only design takes this concept to its logical conclusion.
 
-## Dev/Prod parity and recreatability
-Keep development, staging, and production as similar as possible. Environments should provisioned and configured programatically
+## ~~Dev/Prod parity~~
+**While important from a cloud native perspective this speaks to runtime environment and is not bound to the app context**
 
-Historically, there have been substantial gaps between development (a developer making live edits to a local deploy of the app) and production (a running deploy of the app accessed by end users). These gaps manifest in ~~three~~ four areas:
+~~Keep development, staging, and production as similar as possible. Environments should provision and configured programmatically~~
 
-- The time gap: A developer may work on code that takes days, weeks, or even months to go into production.
-- The personnel gap: Developers write code, ops engineers deploy it.
-- The tools gap: Developers may be using a stack like Nginx, SQLite, and OS X, while the production deploy uses Apache, MySQL, and Linux.
-- **Environmental drift: Ad hoc environmental changes result in environments mutating in uncontrolled ways.**
+~~Historically, there have been substantial gaps between development (a developer making live edits to a local deploy of the app) and production (a running deploy of the app accessed by end users). These gaps manifest in three areas:~~
 
-The twelve-factor app is designed for continuous deployment by keeping the gap between development and production small. Looking at the three gaps described above:
+- ~~The time gap: A developer may work on code that takes days, weeks, or even months to go into production.~~
+- ~~The personnel gap: Developers write code, ops engineers deploy it.~~
+- ~~The tools gap: Developers may be using a stack like Nginx, SQLite, and OS X, while the production deploy uses Apache, MySQL, and Linux.~~
 
-- Make the time gap small: a developer may write code and have it deployed hours or even just minutes later.
-- Make the personnel gap small: developers who wrote code are closely involved in deploying it and watching its behavior in production.
-- Make the tools gap small: keep development and production as similar as possible.
-- **Eliminate environmental drift: environmental changes are tracked and propogated to all environments**
+~~The twelve-factor app is designed for continuous deployment by keeping the gap between development and production small. Looking at the three gaps described above:~~
 
-Summarizing the above into a table:
+~~- Make the time gap small: a developer may write code and have it deployed hours or even just minutes later.~~
+~~- Make the personnel gap small: developers who wrote code are closely involved in deploying it and watching its behavior in production.~~
+~~- Make the tools gap small: keep development and production as similar as possible.~~
+
+~~Summarizing the above into a table:~~
+
 | | Traditional app |	Twelve-factor app |
 | --- | --- | --- |
 | Time between deploys |	Weeks |	Hours |
 | Code authors vs code deployers |	Different people |	Same people|
 | Dev vs production environments |	Divergent |	As similar as possible |
 
-Backing services, such as the app’s database, queueing system, or cache, is one area where dev/prod parity is important. Many languages offer libraries which simplify access to the backing service, including adapters to different types of services. Some examples are in the table below.
+~~Backing services, such as the app’s database, queueing system, or cache, is one area where dev/prod parity is important. Many languages offer libraries which simplify access to the backing service, including adapters to different types of services. Some examples are in the table below.~~
+
 | Type |	Language |	Library |	Adapters |
 | --- | --- | --- | --- |
-| Database |	Ruby/Rails |	ActiveRecord |	MySQL, PostgreSQL, SQLite
-| Queue |	Python/Django |	Celery |	RabbitMQ, Beanstalkd, Redis
-| Cache |	Ruby/Rails |	ActiveSupport::Cache |	Memory, filesystem, Memcached
+| Database |	Ruby/Rails |	ActiveRecord |	MySQL, PostgreSQL, SQLite |
+| Queue |	Python/Django |	Celery |	RabbitMQ, Beanstalkd, Redis |
+| Cache |	Ruby/Rails |	ActiveSupport::Cache |	Memory, filesystem, Memcached |
 
-Developers sometimes find great appeal in using a lightweight backing service in their local environments, while a more serious and robust backing service will be used in production. For example, using SQLite locally and PostgreSQL in production; or local process memory for caching in development and Memcached in production.
+~~Developers sometimes find great appeal in using a lightweight backing service in their local environments, while a more serious and robust backing service will be used in production. For example, using SQLite locally and PostgreSQL in production; or local process memory for caching in development and Memcached in production.~~
 
-The twelve-factor developer resists the urge to use different backing services between development and production, even when adapters theoretically abstract away any differences in backing services. Differences between backing services mean that tiny incompatibilities crop up, causing code that worked and passed tests in development or staging to fail in production. These types of errors create friction that disincentivizes continuous deployment. The cost of this friction and the subsequent dampening of continuous deployment is extremely high when considered in aggregate over the lifetime of an application.
+~~The twelve-factor developer resists the urge to use different backing services between development and production, even when adapters theoretically abstract away any differences in backing services. Differences between backing services mean that tiny incompatibilities crop up, causing code that worked and passed tests in development or staging to fail in production. These types of errors create friction that disincentivizes continuous deployment. The cost of this friction and the subsequent dampening of continuous deployment is extremely high when considered in aggregate over the lifetime of an application.~~
 
-Lightweight local services are less compelling than they once were. Modern backing services such as Memcached, PostgreSQL, and RabbitMQ are not difficult to install and run thanks to modern packaging systems, such as **Docker**, Homebrew, and apt-get. Alternatively, declarative provisioning tools such as **Teraform**, Chef, or Puppet combined with light-weight virtual environments such as Docker and Vagrant allow developers to run local environments which closely approximate production environments. The cost of installing and using these systems is low compared to the benefit of dev/prod parity and continuous deployment.
+~~Lightweight local services are less compelling than they once were. Modern backing services such as Memcached, PostgreSQL, and RabbitMQ are not difficult to install and run thanks to modern packaging systems, such as Homebrew and apt-get. Alternatively, declarative provisioning tools such as Chef or Puppet combined with light-weight virtual environments such as Docker and Vagrant allow developers to run local environments which closely approximate production environments. The cost of installing and using these systems is low compared to the benefit of dev/prod parity and continuous deployment.~~
 
-Adapters to different backing services are still useful, because they make porting to new backing services relatively painless. But all deploys of the app (developer environments, staging, production) should be using the same type and version of each of the backing services.
+~~Adapters to different backing services are still useful, because they make porting to new backing services relatively painless. But all deploys of the app (developer environments, staging, production) should be using the same type and version of each of the backing services.~~
 
 ## Logs
 Treat logs as event streams
@@ -211,13 +213,13 @@ The event stream for an app can be routed to a file, or watched via realtime tai
 ## Metrics
 **Metrics are collected outside the normal logging process**
 
-**Metrics are data points that provide point in time information from your running system. Metrics may be follow either a push or pull implmentation streaming datapoints to an external provider or exposing the data via an api that is collected by an external provider.**
+**Metrics are data points that provide point in time information from your running system. Metrics may be follow either a push or pull implementation streaming data-points to an external provider or exposing the data via an api that is collected by an external provider.**
 
-**Traces can be thought of a special case of Metrics in which datapoints can corelated across multiple services in complex systems**
+**Traces can be thought of a special case of Metrics in which data-points can correlate across multiple services in complex systems**
 
-**A twelve-factor app is responsible for monitoring and collecting data about its own performance and operation.  The application should capture system information such as processor, memory, thread and file handler information. In addition to the basic system info domain specific information suchs as request counts and timing should also be collected**
+**A twelve-factor app is responsible for monitoring and collecting data about its own performance and operation.  The application should capture system information such as processor, memory, thread and file handler information. In addition to the basic system info domain specific information such as request counts and timing should also be collected**
 
-**The work of capturing metrics can often be done via a 3rd party library or agent and integrating with a service provider such as Datadog, New Relic, or App Dynamics greatly simplifying the metric collection process. The ability to monitor and track the normal operation of the app improves the ability to identify and react to operational abnormatlities and maintain a robust and healthy system.**
+**The work of capturing metrics can often be done via a 3rd party library or agent and integrating with a service provider such as Datadog, New Relic, or App Dynamics greatly simplifying the metric collection process. The ability to monitor and track the normal operation of the app improves the ability to identify and react to operational abnormalities and maintain a robust and healthy system.**
 
 
 ## Admin processes
@@ -225,9 +227,9 @@ Run admin/management tasks as one-off processes
 
 The process formation is the array of processes that are used to do the app’s regular business (such as handling web requests) as it runs. Separately, developers will often wish to do one-off administrative or maintenance tasks for the app, such as:
 
-    Running database migrations (e.g. manage.py migrate in Django, rake db:migrate in Rails).
-    Running a console (also known as a REPL shell) to run arbitrary code or inspect the app’s models against the live database. Most languages provide a REPL by running the interpreter without any arguments (e.g. python or perl) or in some cases have a separate command (e.g. irb for Ruby, rails console for Rails).
-    Running one-time scripts committed into the app’s repo (e.g. php scripts/fix_bad_records.php).
+- Running database migrations (e.g. manage.py migrate in Django, rake db:migrate in Rails).
+- Running a console (also known as a REPL shell) to run arbitrary code or inspect the app’s models against the live database. Most languages provide a REPL by running the interpreter without any arguments (e.g. python or perl) or in some cases have a separate command (e.g. irb for Ruby, rails console for Rails).
+- Running one-time scripts committed into the app’s repo (e.g. php scripts/fix_bad_records.php).
 
 One-off admin processes should be run in an identical environment as the regular long-running processes of the app. They run against a release, using the same codebase and config as any process run against that release. Admin code must ship with application code to avoid synchronization issues.
 
