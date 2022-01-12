@@ -1,9 +1,3 @@
----
-title: 12 Factor Updated
-created: '2022-01-12T00:48:32.143Z'
-modified: '2022-01-12T06:48:01.761Z'
----
-
 # 12 Factor Updated
 
 ## Codebase
